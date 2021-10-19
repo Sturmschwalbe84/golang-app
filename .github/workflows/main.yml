@@ -8,7 +8,7 @@ on:
       - main
   push:
     branches:
-      - dev
+      - main
     paths-ignore:
       - '.github/workflows/**'
       - '.git'
