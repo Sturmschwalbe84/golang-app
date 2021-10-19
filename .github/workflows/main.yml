@@ -23,12 +23,20 @@ jobs:
         working-directory: golang-app
     steps:
       - uses: actions/checkout@v2
-      - name: golangci-lint
-        id: lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
-          version: v1.29
-          working-directory: golang-app
-      - name: echo
-        run: echo ${{ steps.lint.outputs.output }}
+      - uses: actions/setup-go@v2
+      - run: |
+          curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.42.1
+          export GOPATH=$HOME/go
+          export PATH=$PATH:$GOPATH/bin
+          export PATH=$PATH:$GOROOT/bin
+      - run: golangci-lint run
+      
+#      - name: golangci-lint
+#        id: lint
+#        uses: golangci/golangci-lint-action@v2
+#        with:
+#          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
+#          version: v1.29
+#          working-directory: golang-app
+#      - name: echo
+#        run: echo ${{ steps.lint.outputs.output }}
