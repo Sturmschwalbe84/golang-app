@@ -25,12 +25,21 @@ jobs:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
       - run: "curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.42.1"
-      - run: |
-          export GOPATH=$HOME/go
-          export PATH=$PATH:$GOPATH/bin
-          export PATH=$PATH:$GOROOT/bin
-      - run: golangci-lint run
-      
+      - name: lint
+        id: lint
+        run: |
+          OUTPUT="$(export GOPATH=$HOME/go; export PATH=$PATH:$GOPATH/bin; export PATH=$PATH:$GOROOT/bin; golangci-lint run)"
+          OUTPUT="${OUTPUT//'%'/'%25'}"
+          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+          echo "::set-output name=lint::$OUTPUT"
+      - run: echo ${{ steps.lint.outputs.lint }}
+
+          
+          
+          
+          
+
 #      - name: golangci-lint
 #        id: lint
 #        uses: golangci/golangci-lint-action@v2
