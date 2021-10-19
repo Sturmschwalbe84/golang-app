@@ -3,12 +3,12 @@ env:
   DEV_REPOSITORY: python-app-dev       
   IMAGE_TAG: "${{ github.sha }}"
 on:
-  push:
+  pull_request:
     branches:
       - main
   push:
     branches:
-      - dev
+      - main
     paths-ignore:
       - '.github/workflows/**'
       - '.git'
