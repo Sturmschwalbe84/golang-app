@@ -12,7 +12,7 @@ func main() {
 		c.String(200, "Hello World 22")
 	})
 	r.POST("/", func(c *gin.Context) {
-		c.String(200, "Hello World 22")
+		c.String(200, "Hello World 223")
 	})
 	err := r.Run(":8080")
 	if err != nil {
