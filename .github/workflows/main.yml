@@ -3,7 +3,7 @@ env:
   DEV_REPOSITORY: python-app-dev       
   IMAGE_TAG: "${{ github.sha }}"
 on:
-  pull_request:
+  push:
     branches:
       - main
   push:
