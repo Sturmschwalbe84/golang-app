@@ -23,29 +23,29 @@ jobs:
         working-directory: golang-app
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-go@v2
-      - run: "curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.42.1"
-      - name: lint
-        id: lint
-        run: |
-          OUTPUT="$(export GOPATH=$HOME/go; export PATH=$PATH:$GOPATH/bin; export PATH=$PATH:$GOROOT/bin; golangci-lint run)"
-          OUTPUT="${OUTPUT//'%'/'%25'}"
-          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
-          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
-          echo "::set-output name=lint::$OUTPUT"
-      - run: echo ${{ steps.lint.outputs.lint }}
-
-          
-          
-          
-          
-
-#      - name: golangci-lint
+#      - uses: actions/setup-go@v2
+#      - run: "curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.42.1"
+#      - name: lint
 #        id: lint
-#        uses: golangci/golangci-lint-action@v2
-#        with:
-#          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
-#          version: v1.29
-#          working-directory: golang-app
-#      - name: echo
-#        run: echo ${{ steps.lint.outputs.output }}
+#        run: |
+#          OUTPUT="$(export GOPATH=$HOME/go; export PATH=$PATH:$GOPATH/bin; export PATH=$PATH:$GOROOT/bin; golangci-lint run)"
+#          OUTPUT="${OUTPUT//'%'/'%25'}"
+#          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+#          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+#          echo "::set-output name=lint::$OUTPUT"
+#      - run: echo ${{ steps.lint.outputs.lint }}
+
+          
+          
+          
+          
+
+      - name: golangci-lint
+        id: lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
+          version: v1.29
+          working-directory: golang-app
+      - name: echo
+        run: echo ${{ steps.lint.outcome }}
