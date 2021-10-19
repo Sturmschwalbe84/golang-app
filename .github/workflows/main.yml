@@ -1,0 +1,30 @@
+name: Development env
+env:                                      
+  DEV_REPOSITORY: python-app-dev       
+  IMAGE_TAG: "${{ github.sha }}"
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - dev
+    paths-ignore:
+      - '.github/workflows/**'
+      - '.git'
+      - '.gitignore'
+      - 'README.md'
+jobs:
+  golangci:
+    name: lint
+    runs-on: ubuntu-latest
+    defaults:
+      run: 
+        working-directory: golang-app
+    steps:
+      - uses: actions/checkout@v2
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
+          version: v1.29
