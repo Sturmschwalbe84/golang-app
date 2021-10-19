@@ -1,6 +1,10 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"log"
+
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
 	r := gin.Default()
@@ -10,5 +14,8 @@ func main() {
 	r.POST("/", func(c *gin.Context) {
 		c.String(200, "Hello World 22")
 	})
-	r.Run(":8080")
+	err := r.Run(":8080")
+	if err != nil {
+		log.Panic(err)
+	}
 }
