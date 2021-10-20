@@ -1,9 +1,9 @@
 name: Production env
 env:                                      
   IMAGE_TAG: "${{ github.sha }}"
-  DEV_REPOSITORY: python-app-dev  
-  BLAU_REPOSITORY: python-app-blue
-  GRUEN_REPOSITORY: python-app-green                
+  DEV_REPOSITORY: golang-app-dev  
+  BLAU_REPOSITORY: golang-app-blue
+  GRUEN_REPOSITORY: golang-app-green                
 on:
   pull_request:
     branches: 
@@ -38,7 +38,7 @@ jobs:
       mail_password: ${{ secrets.MAIL_PASSWORD }}
   
   notification_pr:
-    name: Pull Request
+    name: Pull
     if: github.event_name != 'push'
     uses: Sturmschwalbe84/testing/.github/workflows/notifications.yml@main
     with: 
@@ -102,6 +102,7 @@ jobs:
         if: always()
         id: snyk_test
         run: | 
+          export PATH=$PATH:/usr/local/go/bin && snyk test
           OUTPUT="$(export PATH=$PATH:/usr/local/go/bin && snyk test)"
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
@@ -205,11 +206,11 @@ jobs:
         if: github.event_name == 'push'
         id: build-image
         run: |
-          docker build ./python-app -t ${{ steps.ecr.outputs.repository-uri }}:${{ env.IMAGE_TAG }}
+          docker build ./golang-app -t ${{ steps.ecr.outputs.repository-uri }}:${{ env.IMAGE_TAG }}
           docker push ${{ steps.ecr.outputs.repository-uri }}:${{ env.IMAGE_TAG }}
       - name: Test of the image building
         if: github.event_name != 'push'
-        run: docker build ./python-app -t dev-test-image:${{ env.IMAGE_TAG }}
+        run: docker build ./golang-app -t dev-test-image:${{ env.IMAGE_TAG }}
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ BUILD NOTIFICATIONS +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       - name: Create Telegram notification
         if: failure() || github.event_name != 'push'
@@ -357,7 +358,7 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         run: |
-          docker build ./python-app -t ${{ steps.ecr.outputs.repository-uri }}:${{ env.IMAGE_TAG }}
+          docker ./golang-app -t ${{ steps.ecr.outputs.repository-uri }}:${{ env.IMAGE_TAG }}
           docker push ${{ steps.ecr.outputs.repository-uri }}:${{ env.IMAGE_TAG }}
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ STAGING BUILD NOTIFICATIONS +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       - name: Create Telegram notification
@@ -524,7 +525,7 @@ jobs:
       - name: Build, tag, and push image to Amazon ECR
         id: build-image
         run: |
-          docker build ./python-app -t ${{ steps.ecr.outputs.repository-uri }}:${{ env.IMAGE_TAG }}
+          docker build ./golang-app -t ${{ steps.ecr.outputs.repository-uri }}:${{ env.IMAGE_TAG }}
           docker push ${{ steps.ecr.outputs.repository-uri }}:${{ env.IMAGE_TAG }}
 # +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ PRODUCTION BUILD NOTIFICATIONS +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
       - name: Create Telegram notification
