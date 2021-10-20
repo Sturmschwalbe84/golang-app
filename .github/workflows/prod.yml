@@ -102,11 +102,8 @@ jobs:
         if: always()
         id: snyk_test
         run: |
-          go install
-          export GOPATH=$HOME/go
-          export PATH=$PATH:$GOPATH/bin
-          export PATH=$PATH:$GOROOT/bin
           export PATH=$PATH:/usr/local/go/bin
+          go install
           snyk test
           OUTPUT="$(snyk test)"
           OUTPUT="${OUTPUT//'%'/'%25'}"
