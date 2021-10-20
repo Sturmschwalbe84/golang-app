@@ -174,7 +174,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
 
-# ============================================================================== BUILD ==============================================================================
+# ============================================================================== BUILD DEV ==============================================================================
 
 
   build_dev:
@@ -255,9 +255,7 @@ jobs:
           body: "${{ steps.mail.outputs.value }}"
 
 
-
-
-# ============================================================================== STAGING PLAN ============================================================================== 
+# ============================================================================== DEV PLAN ============================================================================== 
 
 
   terraform_plan:
@@ -327,6 +325,88 @@ jobs:
               repo: context.repo.repo,
               body: output
             })
+
+
+
+# ============================================================================== DEV DEPLOYMENT  ==============================================================================
+  
+  
+  second_notification:
+    name: Deploy
+    if: github.event_name == 'push'
+    needs: build_dev
+    uses: Sturmschwalbe84/testing/.github/workflows/notifications.yml@main
+    with: 
+      message: "*${{ github.actor }}* pushed code to the *${{ github.workflow }}*. Code was built for *${{ github.workflow }}* deployment and waiting for your review.\n\n[Link to the action.](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+      body: "${{ github.actor }} pushed code to the ${{ github.workflow }}. Code is building right now for ${{ github.workflow }} deployment and waiting for your review.'${{ github.event.inputs.reason }}'.\n\nhttps://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+      subject: Notification about push to ${{ github.workflow }}
+    secrets: 
+      token: ${{ secrets.TELEGRAM_TOKEN }}
+      to: ${{ secrets.TELEGRAM_TO }}
+      mail_username: ${{ secrets.MAIL_USERNAME }}
+      mail_password: ${{ secrets.MAIL_PASSWORD }}
+  
+  deploy_dev:
+    name: Deploy Dev
+    if: github.event_name == 'push'
+    needs: build_dev
+    environment:
+      name: development
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Cluster/AWS/ECS_Dev
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+           repository: Sturmschwalbe84/infrastructure
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+           aws-region: ${{ secrets.AWS_REGION }}
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+      - name: Get the name of the ECR repository
+        id: ecr
+        uses: int128/create-ecr-repository-action@v1
+        with:
+          repository: ${{ env.DEV_REPOSITORY }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
+      - name: Terraform Init
+        id: init
+        run: terraform init
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -var="Dev_Container=${{ steps.ecr.outputs.repository-uri }}:${{ env.IMAGE_TAG }}" -auto-approve
+# +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ DEVELOPMENT DEPLOY NOTIFICATIONS +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+      - name: Send Telegram notification
+        if: always()
+        uses: appleboy/telegram-action@master
+        with: 
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          args: "${{ github.job }} job of *${{ github.repository }}* has *${{ job.status }}*\n\n[Link to the action.](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})" 
+          format: "markdown"
+          disable_web_page_preview: true
+      - name: Send Gmail notification
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          server_address: smtp.gmail.com
+          server_port: 465
+          subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+          to: ${{ secrets.MAIL_USERNAME }}
+          from: "Exam homework notifications"
+          secure: true
+          body: "${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}\n\nhttps://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" 
+ 
 
 
 # ============================================================================== STAGING BUILD ==============================================================================  
