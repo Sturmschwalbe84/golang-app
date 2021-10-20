@@ -93,17 +93,13 @@ jobs:
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
           OUTPUT="${OUTPUT//$'\r'/'%0D'}"
           echo "::set-output name=docker::$OUTPUT"
-      - name: Run golangci-lint
-        if: always()
-        uses: golangci/golangci-lint-action@v2
-        with:
-          working-directory: golang-app
       - name: Run Snyk test
         if: always()
         id: snyk_test
         run: |
           export PATH=$PATH:/usr/local/go/bin
           go install
+          go mod init
           snyk test
           OUTPUT="$(snyk test)"
           OUTPUT="${OUTPUT//'%'/'%25'}"
@@ -113,6 +109,11 @@ jobs:
         continue-on-error: true
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      - name: Run golangci-lint
+        if: always()
+        uses: golangci/golangci-lint-action@v2
+        with:
+          working-directory: golang-app
       - name: Run Snyk code test
         if: always()
         id: snyk_code
