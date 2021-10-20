@@ -97,9 +97,7 @@ jobs:
         if: always()
         id: snyk_test
         run: |
-          export PATH=$PATH:/usr/local/go/bin
-          go install
-          snyk test
+          export PATH=$PATH:/usr/local/go/bin && go install && snyk test --file=go.mod --command=go
           OUTPUT="$(snyk test)"
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
