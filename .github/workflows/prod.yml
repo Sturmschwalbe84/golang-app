@@ -332,7 +332,7 @@ jobs:
   
   
   second_notification:
-    name: Deploy
+    name: Deploy Dev
     if: github.event_name == 'push'
     needs: build_dev
     uses: Sturmschwalbe84/testing/.github/workflows/notifications.yml@main
