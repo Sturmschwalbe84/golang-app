@@ -99,7 +99,6 @@ jobs:
         run: |
           export PATH=$PATH:/usr/local/go/bin
           go install
-          go mod init
           snyk test
           OUTPUT="$(snyk test)"
           OUTPUT="${OUTPUT//'%'/'%25'}"
