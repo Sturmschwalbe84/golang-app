@@ -88,7 +88,7 @@ jobs:
         if: always()
         id: docker
         run: |
-          dockerfilelint Dockerfile > docker_test
+          dockerfilelint Dockerfile > docker_test || true
           OUTPUT="$(cat docker_test)"
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
@@ -98,7 +98,7 @@ jobs:
         if: always()
         id: snyk_test
         run: |
-          export PATH=$PATH:/usr/local/go/bin && go install && snyk test --file=go.mod --command=go > snyk_test
+          export PATH=$PATH:/usr/local/go/bin && go install && snyk test --file=go.mod --command=go > snyk_test || true
           cat snyk_test
           OUTPUT="$(cat snyk_test)"
           OUTPUT="${OUTPUT//'%'/'%25'}"
@@ -117,7 +117,7 @@ jobs:
         if: always()
         id: snyk_code
         run: |
-          snyk code test . > snyk_code
+          snyk code test . > snyk_code || true
           OUTPUT="$(cat snyk_code)"
           OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
