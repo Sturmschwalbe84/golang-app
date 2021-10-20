@@ -102,6 +102,7 @@ jobs:
         if: always()
         id: snyk_test
         run: |
+          go install
           export GOPATH=$HOME/go
           export PATH=$PATH:$GOPATH/bin
           export PATH=$PATH:$GOROOT/bin
